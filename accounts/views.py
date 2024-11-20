@@ -27,6 +27,8 @@ def register(request):
     return render(request, "register.html")
 # Create your views here.
 print("hello")
+
+#hepglesg,sldmgksdmngnesgnsn
 def check_password(request, password):
     if(check_pass_len(password)):
         messages.error(request, 'the pass too short')
