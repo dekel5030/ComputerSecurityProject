@@ -3,7 +3,7 @@ import json
 import re
 from django.shortcuts import render
 from django.contrib import messages
-
+from accounts.models import Customer
 
 def load_config():
     # Path to your config.json file
@@ -15,7 +15,6 @@ def load_config():
     return config
 
 config = load_config()
-print('kaa')
 def register(request):
     if request.method == "POST":
         conf = load_config()
@@ -26,9 +25,19 @@ def register(request):
         #user = Customer.objects.create(username=username, password=password, email=email)
     return render(request, "register.html")
 # Create your views here.
-print("hello")
 
-#hepglesg,sldmgksdmngnesgnsn
+def login(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        print(username, password)
+    return render(request, "login.html")
+
+def forgot_password(request):
+    if request.method == "POST":
+        print("hey")
+    return render(request, "forgot_password.html")
+
 def check_password(request, password):
     if(check_pass_len(password)):
         messages.error(request, 'the pass too short')
@@ -54,10 +63,5 @@ def is_restricted(password):
         return True
 
 
-def login(request):
-    if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
-        print(username, password)
-    return render(request, "login.html")
+
 
