@@ -3,6 +3,8 @@ import json
 import re
 from django.shortcuts import render
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
+from accounts.models import Customer
 
 
 def load_config():
@@ -15,7 +17,6 @@ def load_config():
     return config
 
 config = load_config()
-print('kaa123')
 def register(request):
     if request.method == "POST":
         conf = load_config()
@@ -58,4 +59,12 @@ def login(request):
         password = request.POST['password']
         print(username, password)
     return render(request, "login.html")
+
+def forgot_password(request):
+    username = request.POST['username']
+    try:
+        user = Customer.objects.get(username=username)
+        email = user.email
+    except ObjectDoesNotExist:
+        email = False
 
