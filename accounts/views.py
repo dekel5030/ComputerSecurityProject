@@ -1,6 +1,8 @@
 import os
 import json
 import re
+from tempfile import template
+
 from django.shortcuts import render
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
@@ -17,6 +19,7 @@ def load_config():
     return config
 
 config = load_config()
+print('kaa')
 def register(request):
     if request.method == "POST":
         conf = load_config()
@@ -27,6 +30,18 @@ def register(request):
         #user = Customer.objects.create(username=username, password=password, email=email)
     return render(request, "register.html")
 # Create your views here.
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        print(username, password)
+    return render(request, "login.html")
+
+def forgot_password(request):
+    if request.method == "POST":
+        print("hey")
+    return render(request, "forgot_password.html")
 
 def check_password(request, password):
     if(check_pass_len(password)):
@@ -62,9 +77,13 @@ def login(request):
 
 def forgot_password(request):
     username = request.POST['username']
+    print("kaa1")
     try:
+        print("kaa2")
+
         user = Customer.objects.get(username=username)
         email = user.email
     except ObjectDoesNotExist:
         email = False
+    return render(request, "forgot_password.html")
 
