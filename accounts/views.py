@@ -26,7 +26,7 @@ def register(request):
         #user = Customer.objects.create(username=username, password=password, email=email)
     return render(request, "register.html")
 # Create your views here.
-
+print("hello")
 def check_password(request, password):
     if(check_pass_len(password)):
         messages.error(request, 'the pass too short')
