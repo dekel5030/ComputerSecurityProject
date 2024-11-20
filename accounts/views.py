@@ -15,7 +15,7 @@ def load_config():
     return config
 
 config = load_config()
-
+print('kaa')
 def register(request):
     if request.method == "POST":
         conf = load_config()
