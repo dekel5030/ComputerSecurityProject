@@ -1,0 +1,61 @@
+import os
+import json
+import re
+from django.shortcuts import render
+from django.contrib import messages
+
+
+def load_config():
+    # Path to your config.json file
+    config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+
+    with open(config_path, 'r') as file:
+        config = json.load(file)
+
+    return config
+
+config = load_config()
+
+def register(request):
+    if request.method == "POST":
+        conf = load_config()
+        username = request.POST['username']
+        password = request.POST['password']
+        check_password(request, password)
+        email = request.POST['email']
+        #user = Customer.objects.create(username=username, password=password, email=email)
+    return render(request, "register.html")
+# Create your views here.
+
+def check_password(request, password):
+    if(check_pass_len(password)):
+        messages.error(request, 'the pass too short')
+        print("he pass too short")
+
+def check_pass_len(password):
+    return (len(password) < config['password_length'])
+
+def has_capital_letter(password):
+    return bool(re.search(r'[A-Z]', password))
+
+def has_lower_letter(password):
+    return bool(re.search(r'[a-z]', password))
+
+def has_numbers(password):
+    return bool(re.search(r'[0-9]', password))
+
+def has_special_charcters(password):
+    return bool(re.search(r'[^a-zA-Z0-9]', password))
+
+def is_restricted(password):
+    if(password in config['restricted_words']):
+        return True
+
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        print(username, password)
+    return render(request, "login.html")
+
