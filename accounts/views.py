@@ -8,7 +8,7 @@ def register(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
-        is_Valid, message = check_password(username, password)
+        is_Valid, message = check_password(password)
         print(f"Valid: {is_Valid}, message: {message}")
         email = request.POST['email']
         #user = Customer.objects.create(username=username, password=password, email=email)
