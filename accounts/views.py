@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from accounts.models import Customer
 from accounts.password_utils import check_password
 
@@ -21,11 +22,15 @@ def login(request):
         print(username, password)
     return render(request, "login.html")
 
+
 def forgot_password(request):
-    if request.method == "POST":
-        print("hey")
+    username = request.POST['username']
+    print("kaa1")
+    try:
+        print("kaa2")
+
+        user = Customer.objects.get(username=username)
+        email = user.email
+    except ObjectDoesNotExist:
+        email = False
     return render(request, "forgot_password.html")
-
-
-
-
