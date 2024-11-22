@@ -7,6 +7,6 @@
 		"special_characters": true
 	},
 	"password_history": 3,
-	"dictionary_restriction": ["password", "123456", "qwerty"],
+	"dictionary_restriction": ["password", "123456", "qwerty","Password123!"],
 	"login_attempts": 3
 }
