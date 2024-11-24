@@ -1,7 +1,16 @@
 import os
 import json
 import re
+from hashlib import pbkdf2_hmac
 from accounts.models import Customer
+
+def hash(password,salt):
+    our_app_iters = 500_000  # Application specific, read above.
+    dk = pbkdf2_hmac('sha256', bytes(password, 'utf-8'), salt * 2, our_app_iters)
+    return dk.hex()
+
+
+
 
 def load_config():
     # Path to your config.json file
