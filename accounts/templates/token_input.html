@@ -39,8 +39,8 @@
 <form method="post" id="forgotPasswordForm">
     {% csrf_token %}
     <div>
-        <label>Enter your username: </label>
-        <input type="text" id="forgotUsername" name="username" required>
+        <label>Enter your token: </label>
+        <input type="text" id="token" name="token" required>
     </div>
     <button type="submit">Submit</button>
 </form>

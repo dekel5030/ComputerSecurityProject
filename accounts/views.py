@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import os
 from django.core.exceptions import ObjectDoesNotExist
+
 from accounts.models import Customer
 from accounts.password_utils import check_password,hash
 
@@ -23,7 +24,10 @@ def login(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
-        print(username, password)
+        user = Customer.objects.get(username=username)
+        if(user.password == hash(password,eval(user.salt))):
+            print("user have been login successfully")
+
     return render(request, "login.html")
 
 
@@ -38,3 +42,4 @@ def forgot_password(request):
     except ObjectDoesNotExist:
         email = False
     return render(request, "forgot_password.html")
+

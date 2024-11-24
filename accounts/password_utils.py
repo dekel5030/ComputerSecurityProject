@@ -11,7 +11,6 @@ def hash(password,salt):
 
 
 
-
 def load_config():
     # Path to your config.json file
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
