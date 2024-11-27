@@ -46,10 +46,16 @@ def forgot_password(request):
         username = request.POST['username']
         print("kaa1")
         try:
-            print("kaa2")
-
             user = Customer.objects.get(username=username)
+            print("kaa2")
             email = user.email
+            return token_input(request, email)
         except ObjectDoesNotExist:
-            email = False
+            print("kaa3")
+            return render(request, "forgot_password.html", {"error": "Username does not exists"})
     return render(request, "forgot_password.html")
+
+def token_input(request, email):
+    print(email)
+    return render(request, "token_input.html")
+
