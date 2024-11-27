@@ -34,9 +34,9 @@ def login(request):
             if(user.password == hash(password, ast.literal_eval(user.salt) )):
                 return render(request, "login.html", {"success":True})
             else:
-                return render(request, "login.html", {"error": "Incorrect password or name"})
+                return render(request, "login.html", {"error": "Incorrect username or password"})
         except Customer.DoesNotExist:
-            return render(request, "login.html", {"error": "Incorrect password or name"})
+            return render(request, "login.html", {"error": "Incorrect username or password"})
 
     return render(request, "login.html")
 
