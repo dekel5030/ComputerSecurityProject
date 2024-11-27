@@ -10,14 +10,18 @@ def register(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
         email = request.POST['email']
-        is_valid, message = check_password(password)
+
+        is_valid, message = check_password(password,confirm_password)
         print(is_valid, message)
+
         if is_valid:
             salt = os.urandom(16)
             hashed_password = hash(password,salt)
             user = Customer.objects.create(username=username, password=hashed_password, email=email, salt=salt)
             print(user)
+
     return render(request, "register.html")
 # Create your views here.
 
@@ -38,14 +42,14 @@ def login(request):
 
 
 def forgot_password(request):
-    username = request.POST['username']
-    print("kaa1")
-    try:
-        print("kaa2")
+    if request.method == "POST":
+        username = request.POST['username']
+        print("kaa1")
+        try:
+            print("kaa2")
 
-        user = Customer.objects.get(username=username)
-        email = user.email
-    except ObjectDoesNotExist:
-        email = False
+            user = Customer.objects.get(username=username)
+            email = user.email
+        except ObjectDoesNotExist:
+            email = False
     return render(request, "forgot_password.html")
-
