@@ -5,9 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c2f9b7bc-b66d-42a0-951d-be3955f6d0cd" name="Changes" comment="">
+<<<<<<< HEAD
       <change afterPath="$PROJECT_DIR$/accounts/send_email.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ComputerSecurityProject/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/ComputerSecurityProject/settings.py" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+>>>>>>> dcf06229ea8ef6f720b0bacb73cd0efa8e41ac8b
       <change beforePath="$PROJECT_DIR$/accounts/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/accounts/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -63,7 +67,7 @@
       <recent name="C:\Users\dekel\PycharmProjects\ComputerSecurityProject\accounts\static" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.manage">
+  <component name="RunManager" selected="Django Server.ComputerSecurityProject">
     <configuration name="forgot_password.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/ComputerSecurityProject/accounts/templates/forgot_password.html" useBuiltInWebServerPort="true">
       <method v="2" />
     </configuration>
@@ -140,13 +144,19 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Django Server.ComputerSecurityProject" />
+      <item itemvalue="JavaScript Debug.forgot_password.html" />
       <item itemvalue="Python.manage" />
       <item itemvalue="Python.pbkdf2" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.manage" />
+<<<<<<< HEAD
         <item itemvalue="Python.pbkdf2" />
+=======
+        <item itemvalue="JavaScript Debug.forgot_password.html" />
+>>>>>>> dcf06229ea8ef6f720b0bacb73cd0efa8e41ac8b
       </list>
     </recent_temporary>
   </component>
@@ -176,7 +186,7 @@
       <workItem from="1732532430844" duration="1188000" />
       <workItem from="1732640401706" duration="71000" />
       <workItem from="1732641165103" duration="27000" />
-      <workItem from="1732719794910" duration="2977000" />
+      <workItem from="1732719794910" duration="3808000" />
     </task>
     <servers />
   </component>
