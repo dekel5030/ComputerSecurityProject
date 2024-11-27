@@ -5,6 +5,7 @@ import ast
 
 from accounts.models import Customer
 from accounts.password_utils import check_password,hash
+from accounts.send_email import send_email_with_parameter
 
 def register(request):
     if request.method == "POST":
@@ -57,5 +58,6 @@ def forgot_password(request):
 
 def token_input(request, email):
     print(email)
+    send_email_with_parameter(request, email)
     return render(request, "token_input.html")
 
