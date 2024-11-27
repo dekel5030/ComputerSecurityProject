@@ -1,145 +1,36 @@
+{% load static %}
+
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title> Security </title>
-    <style>
-        :root {
-            --leaf-dark-green: #083b08;
-            --wood-brown: #3d2506;
-            --main-bg: #f7e3bb;
-            --input-bg: #fbd4c0;
-            --input-bg-active: #dcfbc0;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        html {
-            background-color: var(--leaf-dark-green);
-            padding: 20px;
-            height: 100%;
-        }
-
-        body {
-            background-color: var(--wood-brown);
-            padding: 6px;
-            display: flex;
-            height: 100%;
-            margin: 0;
-            color: var(--wood-brown);
-        }
-
-        h1 {
-            text-align: center;
-            background-color: rgba(232, 208, 103, 0.88);
-            padding: 4px;
-            border-radius: 20px;
-        }
-
-        .container {
-            margin: auto;
-        }
-
-        form {
-            margin: auto;
-            border-style: solid;
-            padding: 30px;
-            background-color: var(--main-bg);
-        }
-
-        form button,
-        form input {
-            transition-duration: 0.2s;
-            border-style: solid;
-        }
-
-        form button {
-            width: 100%;
-        }
-
-        form button:hover,
-        form input:hover,
-        form button:focus,
-        form input:focus {
-            scale: 103%;
-            margin: 1px;
-        }
-
-        .form-field {
-            display: flex;
-            justify-content: space-between;
-            gap: 5px;
-            margin: 3px;
-        }
-
-        form input.valid {
-            border-color: green;
-            border-width: 3px;
-        }
-
-        form input.invalid {
-            border-color: red;
-            border-width: 3px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
-
 <body>
-    <div class="container">
-        <h1>Login</h1>
-        <form method="post">
+    <div class="form-container">
+        <h2>Login</h2>
+        <form method="POST">
             {% csrf_token %}
-            <div class="form-field">
-                <label>Username: </label>
-                <input id="username-field" type="text" name="username">
-            </div>
-            <div class="form-field">
-                <label>Password: </label>
-                <input type="password" name="password">
-            </div>
-            <div class="form-field">
-                <button style="width:100%;" type="submit">Login</button>
-            </div>
-            
+            <label for="username">username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+
             {% if error %}
             <div style="color:red;">{{ error }}</div>
             {% endif %}
-            
+
             {% if success %}
             <div>Logged in successfully. When the main paged will be finished this will send you to it.</div>
             {% endif %}
         </form>
+        <p>Forgot your password? <a href="{% url 'forgot_password' %}">Reset it here</a></p>
+        <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
     </div>
-    <script>
-        // Inline validation
-        //         const usernameField = document.getElementById("username-field");
-        //         usernameField.addEventListener("input", async function (event) {
-        //             const value = usernameField.value;
-        //             const csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
-        // 
-        //             // Make an AJAX call to validate the input
-        //             const response = await fetch(document.URL + "validate-username/", {
-        //                 method: "POST",
-        //                 headers: {
-        //                     "Content-Type": "application/json",
-        //                     "X-CSRFToken": csrfToken
-        //                 },
-        //                 body: JSON.stringify({ input_field: value })
-        //             });
-        // 
-        //             const data = await response.json();
-        // 
-        //             if (data.is_valid) {
-        //                 usernameField.classList.remove("invalid");
-        //                 usernameField.classList.add("valid");
-        //             } else {
-        //                 usernameField.classList.remove("valid");
-        //                 usernameField.classList.add("invalid");
-        //             }
-        //         });
-    </script>
 </body>
-
 </html>

@@ -23,7 +23,10 @@ def load_config():
 config = load_config()
 
 
-def check_password(password):
+def check_password(password,confirm_password):
+    if password != confirm_password:
+        return False, "The passwords do not match"
+
     if is_password_too_short(password):
         return False, f"The password is too short. It must be at least {config['password_length']} characters long."
 
