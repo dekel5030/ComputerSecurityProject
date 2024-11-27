@@ -36,7 +36,7 @@ def login(request):
             else:
                 return render(request, "login.html", {"error": "Incorrect username or password"})
         except Customer.DoesNotExist:
-            return render(request, "login.html", {"error": "Incorrect username or password"})
+            return render(request, "login.html", {"error": "Customer does not exist"})
 
     return render(request, "login.html")
 
