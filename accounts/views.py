@@ -47,9 +47,21 @@ def forgot_password(request):
         print("kaa1")
         try:
             print("kaa2")
-
             user = Customer.objects.get(username=username)
+            if(user):
+                send_verification_code(user.email, 1234)
             email = user.email
         except ObjectDoesNotExist:
             email = False
     return render(request, "forgot_password.html")
+
+
+from django.core.mail import send_mail
+
+def send_verification_code(email, code):
+    subject = 'Your Verification Code'
+    message = f'Your verification code is: {code}'
+    from_email = 'computerscienceproject@zohomail.com'
+    recipient_list = [email]
+
+    send_mail(subject, message, from_email, recipient_list)
