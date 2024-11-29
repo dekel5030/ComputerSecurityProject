@@ -5,6 +5,7 @@ import ast
 
 from accounts.models import Customer
 from accounts.password_utils import check_password,hash
+from accounts.send_email import send_verification_code
 
 def register(request):
     if request.method == "POST":
@@ -34,7 +35,7 @@ def login(request):
             if(user.password == hash(password, ast.literal_eval(user.salt) )):
                 return render(request, "login.html", {"success":True})
             else:
-                return render(request, "login.html", {"error": "Incorrect username or password"})
+                return render(request, "login.html", {"error": "Incorrect password"})
         except Customer.DoesNotExist:
             return render(request, "login.html", {"error": "Customer does not exist"})
 
@@ -44,24 +45,20 @@ def login(request):
 def forgot_password(request):
     if request.method == "POST":
         username = request.POST['username']
-        print("kaa1")
         try:
-            print("kaa2")
             user = Customer.objects.get(username=username)
-            if(user):
-                send_verification_code(user.email, 1234)
-            email = user.email
+            verification_code = generate_verification_code()
+            send_verification_code(user.email, verification_code)
+            return token_input(request, verification_code)
+
         except ObjectDoesNotExist:
-            email = False
+            return render(request, "forgot_password.html", {"error": "Username does not exists"})
     return render(request, "forgot_password.html")
 
 
-from django.core.mail import send_mail
 
-def send_verification_code(email, code):
-    subject = 'Your Verification Code'
-    message = f'Your verification code is: {code}'
-    from_email = 'computerscienceproject@zohomail.com'
-    recipient_list = [email]
+def token_input(request,code):
+    return render(request, "token_input.html")
 
-    send_mail(subject, message, from_email, recipient_list)
+def generate_verification_code():
+    return 123456

@@ -1,19 +1,30 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Forgot Password</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
 
-<!-- Forgot Password Form -->
-<form method="post" id="forgotPasswordForm">
-    {% csrf_token %}
-    <div>
-        <label>Enter your token: </label>
-        <input type="text" id="token" name="token" required>
-    </div>
-    <button type="submit">Submit</button>
-</form>
+    <div class="form-container">
+        <h2>Login</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="toekn">Enter your token:</label>
+            <input type="text" id="token" name="token" required>
 
+            <button type="submit">Login</button>
+
+            {% if error %}
+            <div style="color:red;">{{ error }}</div>
+            {% endif %}
+
+            {% if success %}
+            <div>Logged in successfully. When the main paged will be finished this will send you to it.</div>
+            {% endif %}
+        </form>
+    </div>
 </body>
 </html>

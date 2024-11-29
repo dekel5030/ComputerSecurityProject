@@ -1,5 +1,5 @@
 {
-	"password_length": 10,
+	"password_length": 4,
 	"password_complexity": {
 		"uppercase": true,
 		"lowercase": true,
