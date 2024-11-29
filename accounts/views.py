@@ -52,7 +52,7 @@ def forgot_password(request):
             return token_input(request, verification_code)
 
         except ObjectDoesNotExist:
-            return render(request, "forgot_password.html", {"error": "Username does not exists"})
+            return render(request, "forgot_password.html", {"error": "User does not exists"})
     return render(request, "forgot_password.html")
 
 
