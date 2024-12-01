@@ -1,6 +1,8 @@
+from django.contrib import messages
 from django.shortcuts import render
 import os
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
 import ast
 
 from accounts.models import Customer
@@ -14,15 +16,23 @@ def register(request):
         confirm_password = request.POST['confirm_password']
         email = request.POST['email']
 
+        #validates uniqueness
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username is already taken.")
+            return render(request, "register.html")
+
         is_valid, message = check_password(password,confirm_password)
-        print(is_valid, message)
+        if not is_valid:
+            messages.error(request,message)
+            return render(request, "register.html")
 
         if is_valid:
             salt = os.urandom(16)
             hashed_password = hash(password,salt)
             user = Customer.objects.create(username=username, password=hashed_password, email=email, salt=salt)
-            print(user)
-
+            messages.success(request, "Registration successful! You can now log in.")
+            return render(request, "login.html")
+        print(f"after")
     return render(request, "register.html")
 # Create your views here.
 
