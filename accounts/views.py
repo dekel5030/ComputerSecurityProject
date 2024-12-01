@@ -66,6 +66,8 @@ def forgot_password(request):
     return render(request, "forgot_password.html")
 
 
+def home(request):
+    return render(request);
 
 def token_input(request,code):
     return render(request, "token_input.html")
