@@ -8,6 +8,9 @@ class Customer(models.Model):
     password = models.TextField()
     salt = models.TextField()
 
+class manager(Customer):
+    role = models.TextField();
+
 class Password_History(models.Model):
     username = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="password_history")
     password = models.TextField()

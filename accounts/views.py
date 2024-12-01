@@ -77,5 +77,11 @@ def token_input(request, username,token):
         else:
             print("token matched")
 
+def home(request):
+    return render(request);
+
+def token_input(request,code):
     return render(request, "token_input.html")
 
+def generate_verification_code():
+    return 123456
