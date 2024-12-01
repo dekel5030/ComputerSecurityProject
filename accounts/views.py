@@ -4,6 +4,7 @@ import os
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 import ast
+import random
 
 from accounts.models import Customer
 from accounts.password_utils import check_password,hash
@@ -57,18 +58,24 @@ def forgot_password(request):
         username = request.POST['username']
         try:
             user = Customer.objects.get(username=username)
-            verification_code = generate_verification_code()
-            send_verification_code(user.email, verification_code)
-            return token_input(request, verification_code)
+            verification_code = str(random.randint(100000, 999999))
+            print(verification_code)
+            send_verification_code(user.email, username,  verification_code)
+            return token_input(request, username, verification_code)
 
         except ObjectDoesNotExist:
             return render(request, "forgot_password.html", {"error": "User does not exists"})
     return render(request, "forgot_password.html")
 
+def token_input(request, username,token):
+    if request.method == "POST":
+        # in_token = request.POST['token']
+        in_token = '123456'
+        print(in_token)
+        if token != in_token:
+            print("token not match")
+        else:
+            print("token matched")
 
-
-def token_input(request,code):
     return render(request, "token_input.html")
 
-def generate_verification_code():
-    return 123456
