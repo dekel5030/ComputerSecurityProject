@@ -26,6 +26,13 @@
             <input type="password" id="confirm_password" name="confirm_password" required>
 
             <button type="submit">Register</button>
+           {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="alert {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
         </form>
         <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
     </div>
