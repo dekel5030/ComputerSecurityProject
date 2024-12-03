@@ -2,6 +2,7 @@ import os;
 from django.db import models
 from accounts.password_utils import hash
 
+
 class UserManager(models.Manager):
     def create_user(self, username, email, password):
         salt = os.urandom(16)  # Generate salt
@@ -17,12 +18,6 @@ class UserManager(models.Manager):
         user.save()
 
 
-class Customer(models.Model):
-    username = models.TextField(primary_key=True)
-    email = models.TextField()
-    password = models.TextField()
-    salt = models.TextField()
-
 class User(models.Model):
     username = models.TextField(primary_key=True)
     email = models.TextField()
@@ -30,6 +25,14 @@ class User(models.Model):
     salt = models.TextField()
 
     objects = UserManager()
+
+class Customer(models.Model):
+    username = models.TextField(primary_key=True)
+    email = models.TextField()
+    password = models.TextField()
+    salt = models.TextField()
+
+
 
 class Password_History(models.Model):
     username = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="password_history")
