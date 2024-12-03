@@ -1,10 +1,12 @@
-from django.contrib import messages
-from django.shortcuts import render
 import os
+from django.contrib import messages
+from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 import ast
 import random
+
+from django.template.context_processors import request
 
 from accounts.models import Customer
 from accounts.password_utils import check_password,hash
@@ -19,20 +21,20 @@ def register(request):
 
         #validates uniqueness
         if User.objects.filter(username=username).exists():
-            messages.error(request, "Username is already taken.")
-            return render(request, "register.html")
+            messages.error(request, "Username is already taken")
+            return redirect('register')
 
         is_valid, message = check_password(password,confirm_password)
         if not is_valid:
             messages.error(request,message)
-            return render(request, "register.html")
+            return redirect('register')
 
         if is_valid:
             salt = os.urandom(16)
             hashed_password = hash(password,salt)
             user = Customer.objects.create(username=username, password=hashed_password, email=email, salt=salt)
             messages.success(request, "Registration successful! You can now log in.")
-            return render(request, "login.html")
+            return redirect('login')
         print(f"after")
     return render(request, "register.html")
 # Create your views here.
@@ -58,30 +60,44 @@ def forgot_password(request):
         username = request.POST['username']
         try:
             user = Customer.objects.get(username=username)
-            verification_code = str(random.randint(100000, 999999))
+            verification_code = generate_verification_code()
             print(verification_code)
             send_verification_code(user.email, username,  verification_code)
-            return token_input(request, username, verification_code)
+
+            request.session['verification_code'] = verification_code
+            request.session['username'] = username
+            return redirect("token_input")
 
         except ObjectDoesNotExist:
             return render(request, "forgot_password.html", {"error": "User does not exists"})
+
     return render(request, "forgot_password.html")
 
-def token_input(request, username,token):
+def token_input(request):
     if request.method == "POST":
-        # in_token = request.POST['token']
-        in_token = '123456'
-        print(in_token)
-        if token != in_token:
-            print("token not match")
+        input_token = request.POST.get('token')
+        verification_code = request.session.pop('verification_code', None)
+
+        if input_token == verification_code:
+            return redirect("reset_password")
         else:
-            print("token matched")
+            print("invalid token")
 
-def home(request):
-    return render(request);
-
-def token_input(request,code):
     return render(request, "token_input.html")
 
+def reset_password(request):
+    if request.method == "POST":
+        username = request.session.get('username', None)
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
+
+        is_valid, message = check_password(password, confirm_password)
+        if not is_valid:
+            messages.error(request, message)
+            return render(request, "register.html")
+
+    return render(request, "reset_password.html")
+
+
 def generate_verification_code():
-    return 123456
+    return str(random.randint(100000, 999999))
