@@ -8,7 +8,7 @@ import random
 
 from django.template.context_processors import request
 
-from accounts.models import Customer
+from accounts.models import User
 from accounts.password_utils import check_password,hash
 from accounts.send_email import send_verification_code
 
@@ -22,17 +22,22 @@ def register(request):
         #validates uniqueness
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username is already taken")
-            return redirect('register')
+            return render(request, "register.html")
 
         is_valid, message = check_password(password,confirm_password)
         if not is_valid:
             messages.error(request,message)
-            return redirect('register')
+            return render(request, "register.html")
 
         if is_valid:
-            salt = os.urandom(16)
+            '''salt = os.urandom(16)
             hashed_password = hash(password,salt)
-            user = Customer.objects.create(username=username, password=hashed_password, email=email, salt=salt)
+            user = User.objects.create(username=username, password=hashed_password, email=email, salt=salt.hex())'''
+
+            # instead this ↑↑↑↑↑↑↑↑↑↑ do this ↓↓↓↓↓↓↓↓↓↓
+
+            user = User.objects.create_user(username=username, password=password, email=email)
+
             messages.success(request, "Registration successful! You can now log in.")
             return redirect('login')
         print(f"after")
@@ -44,12 +49,12 @@ def login(request):
         username = request.POST['username']
         password = request.POST['password']
         try:
-            user = Customer.objects.get(username=username)
-            if(user.password == hash(password, ast.literal_eval(user.salt) )):
+            user = User.objects.get(username=username)
+            if(user.password == hash(password, bytes.fromhex(user.salt) )):
                 return render(request, "login.html", {"success":True})
             else:
                 return render(request, "login.html", {"error": "Incorrect password"})
-        except Customer.DoesNotExist:
+        except User.DoesNotExist:
             return render(request, "login.html", {"error": "Customer does not exist"})
 
     return render(request, "login.html")
@@ -59,7 +64,7 @@ def forgot_password(request):
     if request.method == "POST":
         username = request.POST['username']
         try:
-            user = Customer.objects.get(username=username)
+            user = User.objects.get(username=username)
             verification_code = generate_verification_code()
             print(verification_code)
             send_verification_code(user.email, username,  verification_code)
