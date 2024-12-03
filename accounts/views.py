@@ -1,5 +1,6 @@
 import os
 from django.contrib import messages
+from django.contrib.auth import authenticate
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
@@ -51,6 +52,7 @@ def login(request):
         try:
             user = User.objects.get(username=username)
             if(user.password == hash(password, bytes.fromhex(user.salt) )):
+                user = authenticate(request, username=username, password=password)
                 return render(request, "login.html", {"success":True})
             else:
                 return render(request, "login.html", {"error": "Incorrect password"})
@@ -96,10 +98,25 @@ def reset_password(request):
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
 
-        is_valid, message = check_password(password, confirm_password)
-        if not is_valid:
-            messages.error(request, message)
-            return render(request, "register.html")
+        if(username == None):
+            return redirect("forgot_password")
+
+        try:
+            user = User.objects.get(username=username)
+            is_valid, message = check_password(password, confirm_password)
+            if not is_valid:
+                messages.error(request, message)
+            else:
+                User.objects.change_password(user, password)
+                messages.success(request, "Password updated successfully")
+                render(request, "reset_password.html")
+            #return render(request, "login.html")
+
+        except User.DoesNotExist:
+            messages.error(request, "User does not exist")
+            return render(request, "reset_password.html")
+
+
 
     return render(request, "reset_password.html")
 

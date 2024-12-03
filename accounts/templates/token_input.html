@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Forgot Password</title>
+    <title>Token Verification</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
 
     <div class="form-container">
-        <h2>Login</h2>
+        <h2>Verify Your Token</h2>
         <form method="POST">
             {% csrf_token %}
             <label for="token">Enter your token:</label>
@@ -18,11 +18,11 @@
             <button type="submit">Login</button>
 
             {% if error %}
-            <div style="color:red;">{{ error }}</div>
+                <div style="color:red;">{{ error }}</div>
             {% endif %}
 
             {% if success %}
-            <div>Logged in successfully. When the main paged will be finished this will send you to it.</div>
+                <div>Logged in successfully. When the main paged will be finished this will send you to it.</div>
             {% endif %}
         </form>
     </div>

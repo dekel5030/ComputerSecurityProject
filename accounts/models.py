@@ -14,7 +14,7 @@ class UserManager(models.Manager):
         salt = os.urandom(16)  # Generate new salt
         hashed_password = hash(new_password, salt)  # Hash new password
         user.password = hashed_password
-        user.salt = salt
+        user.salt = salt.hex()
         user.save()
 
     def get_password_history(self):
