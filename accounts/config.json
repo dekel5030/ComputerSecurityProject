@@ -1,10 +1,10 @@
 {
 	"password_length": 4,
 	"password_complexity": {
-		"uppercase": true,
-		"lowercase": true,
+		"uppercase": false,
+		"lowercase": false,
 		"numbers": true,
-		"special_characters": true
+		"special_characters": false
 	},
 	"password_history": 3,
 	"dictionary_restriction": ["password", "123456", "qwerty","Password123!"],
