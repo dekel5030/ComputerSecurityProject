@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.shortcuts import render
 import os
 from django.contrib import messages
 from django.contrib.auth import authenticate
@@ -90,6 +92,10 @@ def token_input(request):
         else:
             print("invalid token")
 
+def home(request):
+    return render(request)
+
+def token_input(request,code):
     return render(request, "token_input.html")
 
 def reset_password(request):
@@ -122,4 +128,7 @@ def reset_password(request):
 
 
 def generate_verification_code():
-    return str(random.randint(100000, 999999))
+    return 123456
+
+def change_password(request):
+    if request.method == "GET":return render(request, "change_password.html",{})
