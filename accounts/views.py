@@ -95,9 +95,11 @@ def token_input(request):
             else:
                 request.session['verification_code'] = verification_code
                 request.session['send_time'] = send_time
-                print("invalid token")
+                return render(request, "token_input.html", {"error": "Invalid Token"})
         else:
-            print("Current time is more than 5 minutes from the previous time.")
+            request.session['verification_code'] = verification_code
+            request.session['send_time'] = send_time
+            return render(request, "token_input.html", {"error": "Token time has passed 5 minute, please send a new Token down below"})
 
     return render(request, "token_input.html")
 
