@@ -24,7 +24,9 @@
             {% if success %}
                 <div>Logged in successfully. When the main paged will be finished this will send you to it.</div>
             {% endif %}
+
         </form>
+         <p>Resend Token <a href="{% url 'forgot_password' %}">Reset it here</a></p>
     </div>
 </body>
 </html>
