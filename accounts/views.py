@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 import ast
 import random
+from datetime import datetime, timedelta
 
 from django.template.context_processors import request
 
@@ -69,12 +70,13 @@ def forgot_password(request):
         username = request.POST['username']
         try:
             user = User.objects.get(username=username)
-            verification_code = generate_verification_code()
+            verification_code = str(random.randint(100000, 999999))
             print(verification_code)
             send_verification_code(user.email, username,  verification_code)
 
             request.session['verification_code'] = verification_code
             request.session['username'] = username
+            request.session['send_time'] = datetime.now().isoformat()
             return redirect("token_input")
 
         except ObjectDoesNotExist:
@@ -86,17 +88,26 @@ def token_input(request):
     if request.method == "POST":
         input_token = request.POST.get('token')
         verification_code = request.session.pop('verification_code', None)
-
-        if input_token == verification_code:
-            return redirect("reset_password")
+        send_time =  request.session.pop('send_time', None)
+        if (datetime.now() - datetime.fromisoformat(send_time)) < timedelta(minutes=5):
+            if input_token == verification_code:
+                return redirect("reset_password")
+            else:
+                request.session['verification_code'] = verification_code
+                request.session['send_time'] = send_time
+                return render(request, "token_input.html", {"error": "Invalid Token"})
         else:
-            print("invalid token")
+            request.session['verification_code'] = verification_code
+            request.session['send_time'] = send_time
+            return render(request, "token_input.html", {"error": "Token time has passed 5 minute, please send a new Token down below"})
+
+    return render(request, "token_input.html")
 
 def home(request):
     return render(request)
 
-def token_input(request,code):
-    return render(request, "token_input.html")
+# def token_input(request,code):
+#     return render(request, "token_input.html")
 
 def reset_password(request):
     if request.method == "POST":
@@ -115,7 +126,7 @@ def reset_password(request):
             else:
                 User.objects.change_password(user, password)
                 messages.success(request, "Password updated successfully")
-                render(request, "reset_password.html")
+                render(request, "login.html")
             #return render(request, "login.html")
 
         except User.DoesNotExist:
