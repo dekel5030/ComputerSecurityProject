@@ -21,6 +21,14 @@ class UserManager(models.Manager):
         return []
 
 
+    def authenticate(self,username,password):
+        user = self.get(username=username)
+        if (user.password == hash(password, bytes.fromhex(user.salt))):
+            return user
+        else:
+            return None
+
+
 class User(models.Model):
     username = models.TextField(primary_key=True)
     email = models.TextField()
@@ -29,8 +37,36 @@ class User(models.Model):
 
     objects = UserManager()
 
+    def login(self,request):
+        request.session['username'] = self.username
+        request.session['isLoggedIn'] = True
+
+    def isLoggedIn(self,request):
+        if(self.username == request.session['username'] and request.session['isLoggedIn'] == True):
+            return True
+        else:
+            return False
+
+    def logout(self,request):
+        request.session['isLoggedIn'] = False
+        request.session['username'] = None
+
 
 class Password_History(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE, related_name="password_history")
     password = models.TextField()
     date_changed = models.DateTimeField(auto_now_add=True)
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+    id_number = models.CharField(max_length=10,primary_key=True)
+    phone_number = models.CharField(max_length=11)
+    city = models.CharField(max_length=50)
+    email = models.EmailField()
+    package = models.CharField(max_length=50)
+
+
+    def __str__(self):
+        return self.name
+

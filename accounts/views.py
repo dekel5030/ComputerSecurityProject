@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.shortcuts import render
 import os
 from django.contrib import messages
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 
 from django.template.context_processors import request
 
-from accounts.models import User
+from accounts.models import User, UserManager
 from accounts.password_utils import check_password,hash
 from accounts.send_email import send_verification_code
 
@@ -48,14 +48,16 @@ def register(request):
     return render(request, "register.html")
 # Create your views here.
 
-def login(request):
+def login_view(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
         try:
-            user = User.objects.get(username=username)
-            if(user.password == hash(password, bytes.fromhex(user.salt) )):
-                user = authenticate(request, username=username, password=password)
+            user = User.objects.authenticate(username=username,password=password)
+            if(user is not None):
+                print(user.isLoggedIn(request))
+                user.login(request)
+                print(user.isLoggedIn(request))
                 return render(request, "login.html", {"success":True})
             else:
                 return render(request, "login.html", {"error": "Incorrect password"})
@@ -102,12 +104,6 @@ def token_input(request):
             return render(request, "token_input.html", {"error": "Token time has passed 5 minute, please send a new Token down below"})
 
     return render(request, "token_input.html")
-
-def home(request):
-    return render(request)
-
-# def token_input(request,code):
-#     return render(request, "token_input.html")
 
 def reset_password(request):
     if request.method == "POST":
