@@ -131,4 +131,6 @@ def generate_verification_code():
     return 123456
 
 def change_password(request):
-    if request.method == "GET":return render(request, "change_password.html",{})
+    if request.method == "GET":
+        print("in")
+    return render(request, "change_password.html")
