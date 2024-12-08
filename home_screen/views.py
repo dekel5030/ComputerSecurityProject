@@ -1,12 +1,27 @@
 from django.shortcuts import render
+from .forms import CustomerForm
 
-# Create your views here.
 def home(request):
-    print(f"Request method: {request.method}")
-    if request.method == 'POST' and request.POST.get('action') == 'ADD_CUSTOMER':
-        # Get the submitted form data
-        name = request.POST.get('name')
-        print(name)
-        print("asfgffffff")
+    customer = None
+    if request.method == 'POST':
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            customer = form.save()
+            form = CustomerForm()
 
-    return render(request,"home.html");
+    else:
+        form = CustomerForm()
+    return render(request, 'home.html', {'form': form, 'customer': customer})
+
+
+##def home(request):
+    #print(f"Request method: {request.method}")
+    #if request.method == 'POST' and request.POST.get('action') == 'ADD_CUSTOMER':
+        # Get the submitted form data
+        #name = request.POST.get('name')
+        #Email = request.POST.get('email')
+        #print(name)
+        #print(Email)
+        #print("asfgffffff")
+
+    #return render(request,"home.html");

@@ -51,61 +51,63 @@
     </style>
 </head>
 <body>
-    <h1>Customer Management</h1>
-    <button type="button" id="add_customer_btn">Add customer</button>
-    <!-- Overlay -->
-    <div id="popup-overlay"></div>
+<h1>Customer Management</h1>
+<button type="button" id="add_customer_btn">Add customer</button>
+<!-- Overlay -->
+<div id="popup-overlay"></div>
 
-    <!-- Popup Form -->
-    <div id="popup-form">
+<!-- Popup Form -->
+<div id="popup-form">
     <h2>Add New Customer</h2>
-        <form id="customer-form" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="ADD_CUSTOMER"> <!-- Hidden input -->
-
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" placeholder="Enter name" required>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" placeholder="Enter email" required>
-
-            <button type="submit">Submit</button>
-            <button type="button" id="cancel-btn">Cancel</button>
-        </form>
+    <form id="customer-form" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit</button>
+        <button type="button" id="cancel-btn">Cancel</button>
+    </form>
+    #new customer information
+    {% if customer %}
+    <div class="success-message">
+        <h2>Customer Added Successfully!</h2>
+        <p><strong>Name:</strong> {{ customer.name }}</p>
+        <p><strong>Email:</strong> {{ customer.email }}</p>
+        <p><strong>ID Number:</strong> {{ customer.id_number }}</p>
+        <p><strong>Phone Number:</strong> {{ customer.phone_number }}</p>
+        <p><strong>City:</strong> {{ customer.city }}</p>
     </div>
+    {% endif %}
+</div>
+
+<script>
+    // Get elements
+    const popupForm = document.getElementById('popup-form');
+    const popupOverlay = document.getElementById('popup-overlay');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const addCustomerButton = document.getElementById('add_customer_btn');
+    const customerForm = document.getElementById('customer-form');
 
 
+    // Hide popup form
+    cancelBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent window click from reopening the popup
+        popupForm.style.display = 'none';
+        popupOverlay.style.display = 'none';
+    });
 
-    <script>
-        // Get elements
-        const popupForm = document.getElementById('popup-form');
-        const popupOverlay = document.getElementById('popup-overlay');
-        const cancelBtn = document.getElementById('cancel-btn');
-        const addCustomerButton = document.getElementById('add_customer_btn');
-        const customerForm = document.getElementById('customer-form');
+    addCustomerButton.addEventListener('click', (e) => {
+        if (popupForm.style.display === 'none' || popupForm.style.display === '') {
+            popupForm.style.display = 'block';
+            popupOverlay.style.display = 'block';
+        }
+    });
 
-
-        // Hide popup form
-        cancelBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent window click from reopening the popup
-            popupForm.style.display = 'none';
-            popupOverlay.style.display = 'none';
-        });
-
-        addCustomerButton.addEventListener('click', (e) => {
-            if (popupForm.style.display === 'none' || popupForm.style.display === '') {
-                popupForm.style.display = 'block';
-                popupOverlay.style.display = 'block';
-            }
-        });
-
-        popupOverlay.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent window click from reopening the popup
-            popupForm.style.display = 'none';
-            popupOverlay.style.display = 'none';
-        });
+    popupOverlay.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent window click from reopening the popup
+        popupForm.style.display = 'none';
+        popupOverlay.style.display = 'none';
+    });
 
 
-    </script>
+</script>
 </body>
 </html>
