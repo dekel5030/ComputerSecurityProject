@@ -1,27 +1,41 @@
 from django.shortcuts import render
-from .forms import CustomerForm
+from django.template.defaultfilters import first
 
+from accounts.models import Customer
 def home(request):
-    customer = None
     if request.method == 'POST':
-        form = CustomerForm(request.POST)
-        if form.is_valid():
-            customer = form.save()
-            form = CustomerForm()
+        form_type = request.POST['action']  # Get the form type
+        print("in " + form_type)
 
+        if form_type == 'add-customer':
+            first_name = request.POST['first_name']
+            last_name = request.POST['last_name']
+            id_number = request.POST['id_number']
+            phone = request.POST['phone']
+            city = request.POST['city']
+            email = request.POST['email']
+            internet_package = request.POST['internet_package']
+            Customer.add(first_name, last_name, id_number, phone, city, email, internet_package)
+            print("add customer submitted")
+            customers = Customer.objects.all()
+            return render(request, 'home.html', {'customers': customers})
+
+        elif form_type == 'remove-customer':
+            # Handle remove customer logic
+            # Add your logic for handling the 'remove customer' form
+            print("remove customer submitted")
+
+        elif form_type == 'edit-customer':
+            # Handle edit customer logic
+            # Add your logic for handling the 'edit customer' form
+            print("edit customer submitted")
+
+        elif form_type == 'search-customer':
+            # Handle search customer logic
+            # Add your logic for handling the 'search customer' form
+            print("search customer submitted")
     else:
-        form = CustomerForm()
-    return render(request, 'home.html', {'form': form, 'customer': customer})
+        customers = Customer.objects.all()
 
+        return render(request, 'home.html', {'customers': customers})
 
-##def home(request):
-    #print(f"Request method: {request.method}")
-    #if request.method == 'POST' and request.POST.get('action') == 'ADD_CUSTOMER':
-        # Get the submitted form data
-        #name = request.POST.get('name')
-        #Email = request.POST.get('email')
-        #print(name)
-        #print(Email)
-        #print("asfgffffff")
-
-    #return render(request,"home.html");

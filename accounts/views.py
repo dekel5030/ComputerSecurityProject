@@ -58,7 +58,8 @@ def login_view(request):
                 print(user.isLoggedIn(request))
                 user.login(request)
                 print(user.isLoggedIn(request))
-                return render(request, "login.html", {"success":True})
+                render(request, "login.html", {"success":True})
+                return redirect("home")
             else:
                 return render(request, "login.html", {"error": "Incorrect password"})
         except User.DoesNotExist:
@@ -132,10 +133,6 @@ def reset_password(request):
 
 
     return render(request, "reset_password.html")
-
-
-def generate_verification_code():
-    return 123456
 
 def change_password(request):
     if request.method == "GET":

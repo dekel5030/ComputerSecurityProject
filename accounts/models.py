@@ -42,7 +42,7 @@ class User(models.Model):
         request.session['isLoggedIn'] = True
 
     def isLoggedIn(self,request):
-        if(self.username == request.session['username'] and request.session['isLoggedIn'] == True):
+        if self.username == request.session['username'] and request.session['isLoggedIn'] == True:
             return True
         else:
             return False
@@ -50,6 +50,10 @@ class User(models.Model):
     def logout(self,request):
         request.session['isLoggedIn'] = False
         request.session['username'] = None
+
+    def getUser(self, username):
+        return User.objects.get(username=username)
+
 
 
 class Password_History(models.Model):
@@ -59,14 +63,26 @@ class Password_History(models.Model):
 
 
 class Customer(models.Model):
-    name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     id_number = models.CharField(max_length=10,primary_key=True)
     phone_number = models.CharField(max_length=11)
     city = models.CharField(max_length=50)
     email = models.EmailField()
     package = models.CharField(max_length=50)
 
+    @staticmethod
+    def add(first_name, last_name, id_number, phone_number, city, email, package):
+        if Customer.objects.filter(id_number=id_number).exists():
+            print(f"Customer with ID {id_number} already exists.")
+            return False
+        else:
+            Customer.objects.create(first_name=first_name,last_name=last_name,id_number=id_number,
+                                    phone_number=phone_number,city=city,email=email,
+                                    package=package)
+            return True
+
 
     def __str__(self):
-        return self.name
+        return self.first_name
 

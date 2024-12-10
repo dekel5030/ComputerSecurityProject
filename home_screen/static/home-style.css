@@ -1,0 +1,94 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+}
+
+
+.header{
+    text-align: center;
+}
+
+button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.button-row{
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+}
+
+.button-row button{
+    margin: 0px 20px 20px 0px;
+}
+
+.button-row button:hover{
+    background-color: #45a049;
+}
+
+
+.customers {
+    width: 80%;
+    margin: 10px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#popup-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 1000; /* Make sure it sits above other content */
+}
+
+.popup-form{
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    z-index: 1001;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0px; /* Adjust the gap between form elements */
+
+}
+
+.buttons{
+    display: flex;
+    justify-content: center;  /* Centers buttons horizontally */
+    gap: 50px;  /* Adds space between the buttons */
+
+}
+
+input, select {
+    margin-bottom: 10px;  /* Adds space between input/select and next element */
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
+.selected {
+    background-color: #f1f1f1;
+}
