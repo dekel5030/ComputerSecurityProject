@@ -3,6 +3,7 @@ import json
 import re
 from hashlib import pbkdf2_hmac
 
+
 def hash(password,salt):
     our_app_iters = 500_000  # Application specific, read above.
     dk = pbkdf2_hmac('sha256', bytes(password, 'utf-8'), salt * 2, our_app_iters)
@@ -21,7 +22,7 @@ def load_config():
 config = load_config()
 
 
-def check_password(password,confirm_password):
+def check_password(password,confirm_password, username):
     if password != confirm_password:
         return False, "The passwords do not match"
 
@@ -43,6 +44,7 @@ def check_password(password,confirm_password):
     if config["password_complexity"]["special_characters"]:
         if not has_special_characters(password):
             return False, "The password must contain at least one special character."
+
 
 
     if len(config["dictionary_restriction"]) > 0:
