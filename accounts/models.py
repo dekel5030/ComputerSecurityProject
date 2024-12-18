@@ -7,6 +7,7 @@ class UserManager(models.Manager):
     def create_user(self, username, email, password):
         salt = os.urandom(16)  # Generate salt
         hashed_password = hash(password, salt)  # Hash password
+        username = username.lower()
         user = self.create(username=username, email=email, password=hashed_password, salt=salt.hex())
         return user
 
@@ -58,8 +59,12 @@ class User(models.Model):
 
 class Password_History(models.Model):
     username = models.ForeignKey(User, on_delete=models.CASCADE, related_name="password_history")
+    salt = models.TextField()
     password = models.TextField()
     date_changed = models.DateTimeField(auto_now_add=True)
+
+    def addPassword(self):
+        self.objects.create()
 
 
 class Customer(models.Model):

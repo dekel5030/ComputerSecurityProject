@@ -34,14 +34,7 @@ def register(request):
             return render(request, "register.html")
 
         if is_valid:
-            '''salt = os.urandom(16)
-            hashed_password = hash(password,salt)
-            user = User.objects.create(username=username, password=hashed_password, email=email, salt=salt.hex())'''
-
-            # instead this ↑↑↑↑↑↑↑↑↑↑ do this ↓↓↓↓↓↓↓↓↓↓
-
             user = User.objects.create_user(username=username, password=password, email=email)
-
             messages.success(request, "Registration successful! You can now log in.")
             return redirect('login')
         print(f"after")
@@ -55,9 +48,7 @@ def login_view(request):
         try:
             user = User.objects.authenticate(username=username,password=password)
             if(user is not None):
-                print(user.isLoggedIn(request))
                 user.login(request)
-                print(user.isLoggedIn(request))
                 render(request, "login.html", {"success":True})
                 return redirect("home")
             else:
