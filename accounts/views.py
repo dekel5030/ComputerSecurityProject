@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.utils.timezone import now
 
 from accounts.models import Customer
-from accounts.password_utils import check_password,hash
+from accounts.password_utils import check_password,hash,login_attempt_count
 from accounts.send_email import send_verification_code
 
 def register(request):
@@ -45,7 +45,7 @@ def login(request: HttpRequest):
         cache_key = f"failed_attempts_{ip}"
         attempts = cache.get(cache_key, 0)
 
-        if attempts >= 5:
+        if attempts >= login_attempt_count():
             # Failed to login too many times
             return render(request, "login.html", {"error": "Tried to many times"})
         cache.set(cache_key, attempts + 1, timeout=15)
