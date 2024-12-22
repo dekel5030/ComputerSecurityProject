@@ -1,13 +1,25 @@
 from django.http import HttpRequest
+from django.contrib import messages
 from django.shortcuts import render
 import os
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
 import ast
 from django.core.cache import cache
 from django.utils.timezone import now
 
 from accounts.models import Customer
 from accounts.password_utils import check_password,hash,login_attempt_count
+import random
+from datetime import datetime, timedelta
+
+from django.template.context_processors import request
+
+from accounts.models import User, UserManager, Password_History
+from accounts.password_utils import check_password,hash
 from accounts.send_email import send_verification_code
 
 def register(request):
@@ -17,15 +29,21 @@ def register(request):
         confirm_password = request.POST['confirm_password']
         email = request.POST['email']
 
+        #validates uniqueness
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username is already taken")
+            return render(request, "register.html")
+
         is_valid, message = check_password(password,confirm_password)
-        print(is_valid, message)
+        if not is_valid:
+            messages.error(request,message)
+            return render(request, "register.html")
 
         if is_valid:
-            salt = os.urandom(16)
-            hashed_password = hash(password,salt)
-            user = Customer.objects.create(username=username, password=hashed_password, email=email, salt=salt)
-            print(user)
-
+            user = User.objects.create_user(username=username, password=password, email=email)
+            messages.success(request, "Registration successful! You can now log in.")
+            return redirect('login')
+        print(f"after")
     return render(request, "register.html")
 # Create your views here.
 
@@ -50,12 +68,14 @@ def login(request: HttpRequest):
             return render(request, "login.html", {"error": "Tried to many times"})
         cache.set(cache_key, attempts + 1, timeout=15)
         try:
-            user = Customer.objects.get(username=username)
-            if(user.password == hash(password, ast.literal_eval(user.salt) )):
-                return render(request, "login.html", {"success":True})
+            user = User.objects.authenticate(username=username,password=password)
+            if(user is not None):
+                user.login(request)
+                render(request, "login.html", {"success":True})
+                return redirect("home")
             else:
                 return render(request, "login.html", {"error": "Incorrect password"})
-        except Customer.DoesNotExist:
+        except User.DoesNotExist:
             return render(request, "login.html", {"error": "Customer does not exist"})
 
     return render(request, "login.html")
@@ -65,19 +85,73 @@ def forgot_password(request):
     if request.method == "POST":
         username = request.POST['username']
         try:
-            user = Customer.objects.get(username=username)
-            verification_code = generate_verification_code()
-            send_verification_code(user.email, verification_code)
-            return token_input(request, verification_code)
+            user = User.objects.get(username=username)
+            verification_code = str(random.randint(100000, 999999))
+            print(verification_code)
+            send_verification_code(user.email, username,  verification_code)
+
+            request.session['verification_code'] = verification_code
+            request.session['username'] = username
+            request.session['send_time'] = datetime.now().isoformat()
+            return redirect("token_input")
 
         except ObjectDoesNotExist:
             return render(request, "forgot_password.html", {"error": "User does not exists"})
+
     return render(request, "forgot_password.html")
 
+def token_input(request):
+    if request.method == "POST":
+        input_token = request.POST.get('token')
+        verification_code = request.session.pop('verification_code', None)
+        send_time =  request.session.pop('send_time', None)
+        if (datetime.now() - datetime.fromisoformat(send_time)) < timedelta(minutes=5):
+            if input_token == verification_code:
+                return redirect("reset_password")
+            else:
+                request.session['verification_code'] = verification_code
+                request.session['send_time'] = send_time
+                return render(request, "token_input.html", {"error": "Invalid Token"})
+        else:
+            request.session['verification_code'] = verification_code
+            request.session['send_time'] = send_time
+            return render(request, "token_input.html", {"error": "Token time has passed 5 minute, please send a new Token down below"})
 
-
-def token_input(request,code):
     return render(request, "token_input.html")
 
-def generate_verification_code():
-    return 123456
+def reset_password(request):
+    if request.method == "POST":
+        username = request.session.get('username', None)
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
+
+        if(username == None):
+            return redirect("forgot_password")
+
+        try:
+            user = User.objects.get(username=username)
+            is_valid, message = check_password(password, confirm_password, user.username)
+            if not Password_History.checkPassword(username=user.username, password=password):
+                is_valid, message = False, "This password already been used."
+            if not is_valid:
+                messages.error(request, message)
+            else:
+                User.objects.change_password(user, password)
+                # add password
+                Password_History.addPassword(user.username, user.password, user.salt)
+                messages.success(request, "Password updated successfully")
+                render(request, "login.html")
+            #return render(request, "login.html")
+
+        except User.DoesNotExist:
+            messages.error(request, "User does not exist")
+            return render(request, "reset_password.html")
+
+
+
+    return render(request, "reset_password.html")
+
+def change_password(request):
+    if request.method == "GET":
+        print("in")
+    return render(request, "change_password.html")

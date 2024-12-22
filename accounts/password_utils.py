@@ -2,13 +2,12 @@ import os
 import json
 import re
 from hashlib import pbkdf2_hmac
-from accounts.models import Customer
+
 
 def hash(password,salt):
     our_app_iters = 500_000  # Application specific, read above.
     dk = pbkdf2_hmac('sha256', bytes(password, 'utf-8'), salt * 2, our_app_iters)
     return dk.hex()
-
 
 
 def load_config():
@@ -24,7 +23,7 @@ config = load_config()
 def login_attempt_count():
     return config["login_attempts"]
 
-def check_password(password,confirm_password):
+def check_password(password,confirm_password, username):
     if password != confirm_password:
         return False, "The passwords do not match"
 
@@ -46,6 +45,7 @@ def check_password(password,confirm_password):
     if config["password_complexity"]["special_characters"]:
         if not has_special_characters(password):
             return False, "The password must contain at least one special character."
+
 
 
     if len(config["dictionary_restriction"]) > 0:
@@ -75,14 +75,3 @@ def is_restricted(password):
     if(password in config['dictionary_restriction']):
         return True
 
-# return true if the password isn't valid
-def is_password_reused(username, password):
-    user = Customer.objects.get(username=username)
-    last_passwords = user.password_history.all().order_by('-date_changed')[:config["password_history"]]
-
-    for entry in last_passwords:
-        if password == entry.password:
-            print(f"You can't use the same last {config['password_history']} passwords.")
-            return True
-
-    return False

@@ -2,9 +2,9 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 
-def send_verification_code(email, code):
+def send_verification_code(email, username, code):
     subject = 'Your Verification Code'
-    message = f'Your verification code is: {code}'
+    message = f'Hello {username},\nYour verification code is: {code}'
     from_email = 'computerscienceproject@zohomail.com'
     recipient_list = [email]
 
