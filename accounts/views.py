@@ -1,7 +1,10 @@
+from django.http import HttpRequest
 from django.shortcuts import render
 import os
 from django.core.exceptions import ObjectDoesNotExist
 import ast
+from django.core.cache import cache
+from django.utils.timezone import now
 
 from accounts.models import Customer
 from accounts.password_utils import check_password,hash
@@ -26,10 +29,26 @@ def register(request):
     return render(request, "register.html")
 # Create your views here.
 
-def login(request):
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def login(request: HttpRequest):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
+        ip = get_client_ip(request)
+        cache_key = f"failed_attempts_{ip}"
+        attempts = cache.get(cache_key, 0)
+
+        if attempts >= 5:
+            # Failed to login too many times
+            return render(request, "login.html", {"error": "Tried to many times"})
+        cache.set(cache_key, attempts + 1, timeout=15)
         try:
             user = Customer.objects.get(username=username)
             if(user.password == hash(password, ast.literal_eval(user.salt) )):
