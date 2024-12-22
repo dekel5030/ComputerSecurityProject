@@ -49,7 +49,7 @@ def login_view(request):
             user = User.objects.authenticate(username=username,password=password)
             if(user is not None):
                 user.login(request)
-                render(request, "login.html", {"success":True})
+                #render(request, "login.html", {"success":True})
                 return redirect("home")
             else:
                 return render(request, "login.html", {"error": "Incorrect password"})
