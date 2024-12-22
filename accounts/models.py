@@ -1,6 +1,6 @@
 import os
 from django.db import models
-from accounts.password_utils import hash
+from accounts.password_utils import hash, config
 
 
 class UserManager(models.Manager):
@@ -58,13 +58,27 @@ class User(models.Model):
 
 
 class Password_History(models.Model):
-    username = models.ForeignKey(User, on_delete=models.CASCADE, related_name="password_history")
+    username = models.TextField()
     salt = models.TextField()
     password = models.TextField()
     date_changed = models.DateTimeField(auto_now_add=True)
 
-    def addPassword(self):
-        self.objects.create()
+    @staticmethod
+    def addPassword(username, salt, password):
+        Password_History.objects.create(username=username, salt=salt, password=password)
+
+    @staticmethod
+    def checkPassword(username, password):
+        x = Password_History.objects.filter(username=username).order_by('-date_changed')[:config['password_history']]
+        for entry in x:
+            if hash(password, bytes.fromhex(entry.salt)) == entry.password:
+                print("not ok")
+                return 0
+
+        print("ok")
+        return 1
+
+
 
 
 class Customer(models.Model):

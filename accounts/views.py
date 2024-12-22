@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 
 from django.template.context_processors import request
 
-from accounts.models import User, UserManager
+from accounts.models import User, UserManager, Password_History
 from accounts.password_utils import check_password,hash
 from accounts.send_email import send_verification_code
 
@@ -108,11 +108,15 @@ def reset_password(request):
 
         try:
             user = User.objects.get(username=username)
-            is_valid, message = check_password(password, confirm_password)
+            is_valid, message = check_password(password, confirm_password, user.username)
+            if not Password_History.checkPassword(username=user.username, password=password):
+                is_valid, message = False, "This password already been used."
             if not is_valid:
                 messages.error(request, message)
             else:
                 User.objects.change_password(user, password)
+                # add password
+                Password_History.addPassword(user.username, user.password, user.salt)
                 messages.success(request, "Password updated successfully")
                 render(request, "login.html")
             #return render(request, "login.html")
