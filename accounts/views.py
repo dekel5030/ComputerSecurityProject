@@ -152,6 +152,25 @@ def reset_password(request):
     return render(request, "reset_password.html")
 
 def change_password(request):
-    if request.method == "GET":
-        print("in")
+    if request.method == "POST":
+        username = request.session.get('username', None)
+        #user = User.objects.get(username=username)
+        current_password = request.POST['current_password']
+        new_password = request.POST['new_password']
+        confirm_password = request.POST['confirm_password']
+        user = User.objects.authenticate(username=username, password=current_password)
+        print(username,current_password,new_password,user)
+        if user:
+            is_valid, message = check_password(new_password, confirm_password, username)
+            if not is_valid:
+                print("not valid password")
+                messages.error(request, message)
+                return render(request, "change_password.html")
+
+            if is_valid:
+                print("valid password")
+                User.objects.change_password(user, new_password)
+                redirect('home')
+        redirect("login")
+
     return render(request, "change_password.html")

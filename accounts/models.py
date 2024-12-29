@@ -96,6 +96,7 @@ class User(models.Model):
 
 
 
+
 class Password_History(models.Model):
     username = models.TextField()
     salt = models.TextField()
