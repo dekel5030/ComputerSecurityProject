@@ -1,3 +1,4 @@
+from django.http import HttpRequest
 from django.contrib import messages
 from django.shortcuts import render
 import os
@@ -7,6 +8,11 @@ from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 import ast
+from django.core.cache import cache
+from django.utils.timezone import now
+
+from accounts.models import Customer
+from accounts.password_utils import check_password,hash,login_attempt_count
 import random
 from datetime import datetime, timedelta
 
@@ -41,10 +47,26 @@ def register(request):
     return render(request, "register.html")
 # Create your views here.
 
-def login_view(request):
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+def login(request: HttpRequest):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
+        ip = get_client_ip(request)
+        cache_key = f"failed_attempts_{ip}"
+        attempts = cache.get(cache_key, 0)
+
+        if attempts >= login_attempt_count():
+            # Failed to login too many times
+            return render(request, "login.html", {"error": "Tried to many times"})
+        cache.set(cache_key, attempts + 1, timeout=15)
         try:
             user = User.objects.authenticate(username=username,password=password)
             if(user is not None):
