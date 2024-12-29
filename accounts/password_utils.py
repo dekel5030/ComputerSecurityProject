@@ -20,7 +20,8 @@ def load_config():
     return config
 
 config = load_config()
-
+def login_attempt_count():
+    return config["login_attempts"]
 
 def check_password(password,confirm_password, username):
     if password != confirm_password:
