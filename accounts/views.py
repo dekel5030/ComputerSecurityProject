@@ -28,7 +28,7 @@ def register(request):
             messages.error(request, "Username is already taken")
             return render(request, "register.html")
 
-        is_valid, message = check_password(password,confirm_password)
+        is_valid, message = check_password(password,confirm_password,username)
         if not is_valid:
             messages.error(request,message)
             return render(request, "register.html")
