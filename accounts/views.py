@@ -80,6 +80,11 @@ def login(request: HttpRequest):
 
     return render(request, "login.html")
 
+def logout(request):
+    request.session['isLoggedIn'] = False
+    request.session['username'] = None
+    return redirect("login")
+
 
 def forgot_password(request):
     if request.method == "POST":

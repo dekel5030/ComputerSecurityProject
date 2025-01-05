@@ -99,7 +99,7 @@ input, select {
     right: 10px;
 }
 
-#change-password-btn {
+#change-password-btn, #logout {
     padding: 10px 15px;
     background-color: #007bff;
     color: white;
@@ -108,6 +108,7 @@ input, select {
     cursor: pointer;
 }
 
-#change-password-btn:hover {
+
+#change-password-btn:hover, #logout:hover {
     background-color: #0056b3;
 }
