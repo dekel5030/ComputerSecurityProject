@@ -1,5 +1,4 @@
 import os
-from idlelib.query import Query
 
 from django.db import models, connection
 from accounts.password_utils import hash, config
@@ -10,8 +9,26 @@ class UserManager(models.Manager):
         salt = os.urandom(16)  # Generate salt
         hashed_password = hash(password, salt)  # Hash password
         username = username.lower()
-        user = self.create(username=username, email=email, password=hashed_password, salt=salt.hex())
-        return user
+        #user = self.create(username=username, email=email, password=hashed_password, salt=salt.hex())
+
+        raw_query = """
+                INSERT INTO accounts_User (username, email, password, salt)
+                VALUES (?, ?, ?, ?);
+                """
+
+        # Execute the raw query
+        with connection.cursor() as cursor:
+            cursor.execute(raw_query, [username, email, hashed_password, salt.hex()])
+
+        # Fetch the created user
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT username, email, password, salt FROM accounts_User WHERE username = ?", [username])
+            user_data = cursor.fetchone()
+        print(user_data)
+        if user_data:
+            # Map fetched data to a dictionary or a model-like structure
+            return User(username=user_data[0], email=user_data[1], password=user_data[2], salt=user_data[3])
+        return None
 
 
     def change_password(self, user, new_password):
@@ -24,10 +41,29 @@ class UserManager(models.Manager):
     def get_password_history(self):
         return []
 
-    def authenticate(self, username, password):
-        user = self.get(username=username)
-        if (user.password == hash(password, bytes.fromhex(user.salt))):
-            return user
+
+    def authenticate(self,username,password):
+        #user = self.get(username=username)
+        Query = f"SELECT username, email, password, salt FROM accounts_User where username = '{username}';"
+
+        # Fetch the user
+        with connection.cursor() as cursor:
+            cursor.execute(Query)
+            user_data = cursor.fetchone()
+        print(user_data)
+        if user_data:
+            # Map fetched data to a dictionary or a model-like structure
+            user =  {
+                "username": user_data[0],
+                "email": user_data[1],
+                "password": user_data[2],
+                "salt": user_data[3],
+            }
+            if (user["password"] == hash(password, bytes.fromhex(user["salt"]))):
+                return User(username=user_data[0], email=user_data[1], password=user_data[2], salt=user_data[3])
+            else:
+                return None
+
         else:
             return None
 
@@ -43,7 +79,6 @@ class User(models.Model):
     def login(self,request):
         request.session['username'] = self.username
         request.session['isLoggedIn'] = True
-        print(123)
 
     def isLoggedIn(self,request):
         if self.username == request.session['username'] and request.session['isLoggedIn'] == True:
@@ -57,6 +92,8 @@ class User(models.Model):
 
     def getUser(self, username):
         return User.objects.get(username=username)
+
+
 
 
 class Password_History(models.Model):
@@ -106,4 +143,3 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.first_name
-
