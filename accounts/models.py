@@ -43,6 +43,7 @@ class User(models.Model):
     def login(self,request):
         request.session['username'] = self.username
         request.session['isLoggedIn'] = True
+        print(123)
 
     def isLoggedIn(self,request):
         if self.username == request.session['username'] and request.session['isLoggedIn'] == True:
