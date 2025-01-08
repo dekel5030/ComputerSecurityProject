@@ -36,6 +36,6 @@ def home(request):
             print("search customer submitted")
     else:
         customers = Customer.objects.all()
-
+        
         return render(request, 'home.html', {'customers': customers})
 
