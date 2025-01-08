@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.defaultfilters import first
 
 from accounts.models import Customer
@@ -35,7 +35,12 @@ def home(request):
             # Add your logic for handling the 'search customer' form
             print("search customer submitted")
     else:
-        customers = Customer.objects.all()
-        
+        is_logged_in = request.session.get('isLoggedIn', False)
+        print(is_logged_in)
+        if is_logged_in == True:
+            customers = Customer.objects.all()
+        else:
+            return redirect("login")
+
         return render(request, 'home.html', {'customers': customers})
 

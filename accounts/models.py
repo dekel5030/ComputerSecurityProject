@@ -1,5 +1,4 @@
 import os
-from idlelib.query import Query
 
 from django.db import models, connection
 from accounts.password_utils import hash, config
@@ -144,4 +143,3 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.first_name
-
