@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
 import ast
 from django.core.cache import cache
 from django.utils.timezone import now

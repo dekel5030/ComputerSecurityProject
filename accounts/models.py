@@ -9,24 +9,23 @@ class UserManager(models.Manager):
         salt = os.urandom(16)  # Generate salt
         hashed_password = hash(password, salt)  # Hash password
         username = username.lower()
-        #user = self.create(username=username, email=email, password=hashed_password, salt=salt.hex())
 
         raw_query = """
-                INSERT INTO accounts_User (username, email, password, salt)
-                VALUES (?, ?, ?, ?);
-                """
+            INSERT INTO accounts_user (username, email, password, salt)
+            VALUES (%s, %s, %s, %s);
+        """
 
-        # Execute the raw query
+        # Execute the insert query
         with connection.cursor() as cursor:
             cursor.execute(raw_query, [username, email, hashed_password, salt.hex()])
 
         # Fetch the created user
         with connection.cursor() as cursor:
-            cursor.execute("SELECT username, email, password, salt FROM accounts_User WHERE username = ?", [username])
+            cursor.execute("SELECT username, email, password, salt FROM accounts_user WHERE username = %s", [username])
             user_data = cursor.fetchone()
-        print(user_data)
+
+        # Map the fetched data to a User instance or return None
         if user_data:
-            # Map fetched data to a dictionary or a model-like structure
             return User(username=user_data[0], email=user_data[1], password=user_data[2], salt=user_data[3])
         return None
 
