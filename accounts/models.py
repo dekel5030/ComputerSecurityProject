@@ -3,26 +3,24 @@ import os
 from django.db import models, connection
 from accounts.password_utils import hash, config
 
+
 class UserManager(models.Manager):
     def create_user(self, username, email, password):
         salt = os.urandom(16)  # Generate salt
         hashed_password = hash(password, salt)  # Hash password
         username = username.lower()
-
-        raw_query = """
-            INSERT INTO accounts_user (username, email, password, salt)
-            VALUES (%s, %s, %s, %s);
-        """
-
+        raw_query = f"""
+    INSERT INTO accounts_user (username, email, password,salt) 
+    VALUES ('{username}', '{email}','{hashed_password}','{salt.hex()}');
+"""
         # Execute the insert query
         with connection.cursor() as cursor:
-            cursor.execute(raw_query, [username, email, hashed_password, salt.hex()])
-
+            cursor.executescript(raw_query)
         # Fetch the created user
         with connection.cursor() as cursor:
-            cursor.execute("SELECT username, email, password, salt FROM accounts_user WHERE username = %s", [username])
+            fetch_query = f"SELECT username, email, password, salt FROM accounts_user WHERE username = '{username}'"
+            cursor.executescript(fetch_query)
             user_data = cursor.fetchone()
-
         # Map the fetched data to a User instance or return None
         if user_data:
             return User(username=user_data[0], email=user_data[1], password=user_data[2], salt=user_data[3])
@@ -42,29 +40,37 @@ class UserManager(models.Manager):
 
     def authenticate(self,username,password):
         #user = self.get(username=username)
-        Query = f"SELECT username, email, password, salt FROM accounts_User where username = '{username}';"
+        # You can use sql injection to bypass password requirements.
+        # ' OR 1=1;---
+        username = username.lower()
+        Query = f"SELECT salt FROM accounts_User where username = '{username}';"
 
         # Fetch the user
         with connection.cursor() as cursor:
             cursor.execute(Query)
             user_data = cursor.fetchone()
-        print(user_data)
         if user_data:
             # Map fetched data to a dictionary or a model-like structure
-            user =  {
-                "username": user_data[0],
-                "email": user_data[1],
-                "password": user_data[2],
-                "salt": user_data[3],
-            }
-            if (user["password"] == hash(password, bytes.fromhex(user["salt"]))):
-                return User(username=user_data[0], email=user_data[1], password=user_data[2], salt=user_data[3])
-            else:
+            Query = f"SELECT username, email, password, salt FROM accounts_User where username = '{username}' AND password = '{hash(password, bytes.fromhex(user_data[0]))}';"
+            with connection.cursor() as cursor:
+                cursor.execute(Query)
+                user_data = cursor.fetchone()
+            if not user_data:
                 return None
-
+            # user =  {
+            #     "username": user_data[0],
+            #     "email": user_data[1],
+            #     "password": user_data[2],
+            #     "salt": user_data[3],
+            # }
+            # if (user["password"] == hash(password, bytes.fromhex(user["salt"]))):
+            return User(username=user_data[0], email=user_data[1], password=user_data[2], salt=user_data[3])
+            # else:
+                # return None
         else:
             return None
-
+# dekel - 12345678aB
+# NotMe - 2345678Ab
 
 class User(models.Model):
     username = models.TextField(primary_key=True)
@@ -133,9 +139,13 @@ class Customer(models.Model):
             print(f"Customer with ID {id_number} already exists.")
             return False
         else:
-            Customer.objects.create(first_name=first_name,last_name=last_name,id_number=id_number,
-                                    phone_number=phone_number,city=city,email=email,
-                                    package=package)
+            raw_query = f"""
+                            INSERT INTO accounts_Customer (first_name, last_name, id_number, phone_number, city, email, package)
+                            VALUES ('{first_name}', '{last_name}', '{id_number}', '{phone_number}', '{city}', '{email}', '{package}');
+                         """
+            with connection.cursor() as cursor:
+                cursor.executescript(raw_query)
+
             return True
 
 

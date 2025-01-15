@@ -49,14 +49,13 @@
         {% for customer in customers %}
             <tr>
                 <td><input type="checkbox" class="select-row" data-id="{{ customer.id_number }}"></td>
-                <!-- Vulnerable XSS reflection -->
                 <td>{{ customer.first_name|safe }}</td>
-                <td>{{ customer.last_name|safe }}</td>
-                <td>{{ customer.id_number|safe }}</td>
-                <td>{{ customer.phone_number|safe }}</td>
-                <td>{{ customer.city|safe }}</td>
-                <td>{{ customer.email|safe }}</td>
-                <td>{{ customer.package|safe }}</td>
+                <td>{{ customer.last_name|safe  }}</td>
+                <td>{{ customer.id_number|safe  }}</td>
+                <td>{{ customer.phone_number|safe  }}</td>
+                <td>{{ customer.city|safe  }}</td>
+                <td>{{ customer.email|safe  }}</td>
+                <td>{{ customer.package|safe  }}</td>
             </tr>
         {% empty %}
             <tr>
