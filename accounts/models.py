@@ -2,17 +2,17 @@ import os
 
 from django.db import models, connection
 from accounts.password_utils import hash, config
-
+from datetime import datetime
 
 class UserManager(models.Manager):
     def create_user(self, username, email, password):
-        salt = os.urandom(16)  # Generate salt
-        hashed_password = hash(password, salt)  # Hash password
+        salt = os.urandom(16)
+        hashed_password = hash(password, salt)
         username = username.lower()
         raw_query = f"""
-    INSERT INTO accounts_user (username, email, password,salt) 
-    VALUES ('{username}', '{email}','{hashed_password}','{salt.hex()}');
-"""
+                        INSERT INTO accounts_user (username, email, password,salt) 
+                        VALUES ('{username}', '{email}','{hashed_password}','{salt.hex()}');
+                        """
         # Execute the insert query
         with connection.cursor() as cursor:
             cursor.executescript(raw_query)
@@ -21,6 +21,10 @@ class UserManager(models.Manager):
             fetch_query = f"SELECT username, email, password, salt FROM accounts_user WHERE username = '{username}'"
             cursor.executescript(fetch_query)
             user_data = cursor.fetchone()
+
+        # add the password to history
+        Password_History.addPassword(username = username, salt = salt, password = hashed_password)
+
         # Map the fetched data to a User instance or return None
         if user_data:
             return User(username=user_data[0], email=user_data[1], password=user_data[2], salt=user_data[3])
@@ -28,6 +32,9 @@ class UserManager(models.Manager):
 
 
     def change_password(self, user, new_password):
+        if not Password_History.checkPassword(username=user.username, password=new_password):
+            raise ValueError("This password already been used.")
+
         salt = os.urandom(16)  # Generate new salt
         hashed_password = hash(new_password, salt)  # Hash new password
         user.password = hashed_password
@@ -108,7 +115,17 @@ class Password_History(models.Model):
 
     @staticmethod
     def addPassword(username, salt, password):
-        Password_History.objects.create(username=username, salt=salt, password=password)
+        # Get the current timestamp
+        salt = salt.hex()
+        current_time = datetime.now()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO accounts_Password_History (username, salt, password, date_changed)
+                VALUES (%s, %s, %s, %s)
+                """,
+                [username, salt, password, current_time]
+            )
 
     @staticmethod
     def checkPassword(username, password):

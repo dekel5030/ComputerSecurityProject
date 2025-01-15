@@ -1,28 +1,16 @@
 import time
-
+import random
 from django.http import HttpRequest
 from django.contrib import messages
-from django.shortcuts import render
-import os
-from django.contrib import messages
-from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
-#from django.contrib.auth.models import User
-import ast
 from django.core.cache import cache
-from django.utils.timezone import now
-
-from accounts.models import Customer
-from accounts.password_utils import check_password,hash,login_attempt_count
-import random
 from datetime import datetime, timedelta
-
 from django.template.context_processors import request
-
 from accounts.models import User, UserManager, Password_History
-from accounts.password_utils import check_password,hash
+from accounts.password_utils import check_password,hash, login_attempt_count
 from accounts.send_email import send_verification_code
+import hashlib
 
 def register(request):
     if request.method == "POST":
@@ -87,6 +75,11 @@ def logout(request):
     request.session['username'] = None
     return redirect("login")
 
+def is_valid_verification_code(input_code, hashed_token):
+    return hash_verification_code(input_code) == hashed_token
+
+def hash_verification_code(verification_code):
+    return hashlib.sha1(verification_code.encode()).hexdigest()
 
 def forgot_password(request):
     if request.method == "POST":
@@ -95,9 +88,10 @@ def forgot_password(request):
             user = User.objects.get(username=username)
             verification_code = str(random.randint(100000, 999999))
             print(verification_code)
-            send_verification_code(user.email, username,  verification_code)
+            hashed_token = hash_verification_code(verification_code)
+            send_verification_code(user.email, username,  hashed_token)
 
-            request.session['verification_code'] = verification_code
+            request.session['verification_code'] = hashed_token
             request.session['username'] = username
             request.session['send_time'] = datetime.now().isoformat()
             return redirect("token_input")
@@ -113,7 +107,7 @@ def token_input(request):
         verification_code = request.session.pop('verification_code', None)
         send_time =  request.session.pop('send_time', None)
         if (datetime.now() - datetime.fromisoformat(send_time)) < timedelta(minutes=5):
-            if input_token == verification_code:
+            if is_valid_verification_code(input_token, verification_code):
                 return redirect("reset_password")
             else:
                 request.session['verification_code'] = verification_code
@@ -138,14 +132,10 @@ def reset_password(request):
         try:
             user = User.objects.get(username=username)
             is_valid, message = check_password(password, confirm_password, user.username)
-            if not Password_History.checkPassword(username=user.username, password=password):
-                is_valid, message = False, "This password already been used."
             if not is_valid:
                 messages.error(request, message)
             else:
                 User.objects.change_password(user, password)
-                # add password
-                Password_History.addPassword(user.username, user.salt, user.password)
                 messages.success(request, "Password updated successfully")
                 render(request, "reset_password.html")
                 time.sleep(1)
@@ -154,16 +144,18 @@ def reset_password(request):
         except User.DoesNotExist:
             messages.error(request, "User does not exist")
             return render(request, "reset_password.html")
+        except ValueError as e:
+            messages.error(request, e)
 
     return render(request, "reset_password.html")
 
 def change_password(request):
     if request.method == "POST":
         username = request.session.get('username', None)
-        #user = User.objects.get(username=username)
         current_password = request.POST['current_password']
         new_password = request.POST['new_password']
         confirm_password = request.POST['confirm_password']
+
         user = User.objects.authenticate(username=username, password=current_password)
         print(username,current_password,new_password,user)
         if user:
