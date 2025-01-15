@@ -1,3 +1,5 @@
+import time
+
 from django.http import HttpRequest
 from django.contrib import messages
 from django.shortcuts import render
@@ -6,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
 import ast
 from django.core.cache import cache
 from django.utils.timezone import now
@@ -143,16 +145,15 @@ def reset_password(request):
             else:
                 User.objects.change_password(user, password)
                 # add password
-                Password_History.addPassword(user.username, user.password, user.salt)
+                Password_History.addPassword(user.username, user.salt, user.password)
                 messages.success(request, "Password updated successfully")
-                render(request, "login.html")
-            #return render(request, "login.html")
+                render(request, "reset_password.html")
+                time.sleep(1)
+                return redirect('login')
 
         except User.DoesNotExist:
             messages.error(request, "User does not exist")
             return render(request, "reset_password.html")
-
-
 
     return render(request, "reset_password.html")
 

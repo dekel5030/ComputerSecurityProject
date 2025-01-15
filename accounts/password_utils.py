@@ -46,8 +46,6 @@ def check_password(password,confirm_password, username):
         if not has_special_characters(password):
             return False, "The password must contain at least one special character."
 
-
-
     if len(config["dictionary_restriction"]) > 0:
         if is_restricted(password):
             return False, f"The password cannot be any of the following: {config['dictionary_restriction']}"
