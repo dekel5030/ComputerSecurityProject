@@ -88,7 +88,7 @@ def forgot_password(request):
             verification_code = str(random.randint(100000, 999999))
             print(verification_code)
             hashed_token = hash_verification_code(verification_code)
-            send_verification_code(user.email, username,  hashed_token)
+            send_verification_code(user.email, username,  verification_code)
 
             request.session['verification_code'] = hashed_token
             request.session['username'] = username
@@ -166,7 +166,10 @@ def change_password(request):
 
             if is_valid:
                 print("valid password")
-                User.objects.change_password(user, new_password)
+                try:
+                    User.objects.change_password(user, new_password)
+                except:
+                    messages.error(request, "This password already been used.")
                 redirect('home')
         redirect("login")
 

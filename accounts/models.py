@@ -39,6 +39,7 @@ class UserManager(models.Manager):
         hashed_password = hash(new_password, salt)  # Hash new password
         user.password = hashed_password
         user.salt = salt.hex()
+        Password_History.addPassword(username=user.username, salt=salt, password=hashed_password)
         user.save()
 
     def get_password_history(self):
