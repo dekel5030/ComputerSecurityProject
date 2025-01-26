@@ -1,7 +1,5 @@
 import os
-from idlelib.query import Query
-
-from django.db import models, connection
+from django.db import models
 from accounts.password_utils import hash, config
 
 
@@ -11,14 +9,18 @@ class UserManager(models.Manager):
         hashed_password = hash(password, salt)  # Hash password
         username = username.lower()
         user = self.create(username=username, email=email, password=hashed_password, salt=salt.hex())
+        Password_History.addPassword(username=username, salt=salt, password=hashed_password)
         return user
 
 
     def change_password(self, user, new_password):
+        if not Password_History.checkPassword(username=user.username, password=new_password):
+            raise ValueError("This password already been used.")
         salt = os.urandom(16)  # Generate new salt
         hashed_password = hash(new_password, salt)  # Hash new password
         user.password = hashed_password
         user.salt = salt.hex()
+        Password_History.addPassword(username=user.username, salt=salt, password=hashed_password)
         user.save()
 
     def get_password_history(self):
@@ -67,7 +69,7 @@ class Password_History(models.Model):
 
     @staticmethod
     def addPassword(username, salt, password):
-        Password_History.objects.create(username=username, salt=salt, password=password)
+        Password_History.objects.create(username=username, salt=salt.hex(), password=password)
 
     @staticmethod
     def checkPassword(username, password):
@@ -79,9 +81,6 @@ class Password_History(models.Model):
 
         print("ok")
         return 1
-
-
-
 
 class Customer(models.Model):
     first_name = models.CharField(max_length=100)
