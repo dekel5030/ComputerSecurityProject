@@ -64,20 +64,9 @@ class UserManager(models.Manager):
                 user_data = cursor.fetchone()
             if not user_data:
                 return None
-            # user =  {
-            #     "username": user_data[0],
-            #     "email": user_data[1],
-            #     "password": user_data[2],
-            #     "salt": user_data[3],
-            # }
-            # if (user["password"] == hash(password, bytes.fromhex(user["salt"]))):
             return User(username=user_data[0], email=user_data[1], password=user_data[2], salt=user_data[3])
-            # else:
-                # return None
         else:
             return None
-# dekel - 12345678aB
-# NotMe - 2345678Ab
 
 class User(models.Model):
     username = models.TextField(primary_key=True)
@@ -103,9 +92,6 @@ class User(models.Model):
 
     def getUser(self, username):
         return User.objects.get(username=username)
-
-
-
 
 class Password_History(models.Model):
     username = models.TextField()

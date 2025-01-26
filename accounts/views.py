@@ -6,9 +6,8 @@ from django.shortcuts import render, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.cache import cache
 from datetime import datetime, timedelta
-from django.template.context_processors import request
-from accounts.models import User, UserManager, Password_History
-from accounts.password_utils import check_password,hash, login_attempt_count
+from accounts.models import User
+from accounts.password_utils import check_password, login_attempt_count
 from accounts.send_email import send_verification_code
 import hashlib
 
